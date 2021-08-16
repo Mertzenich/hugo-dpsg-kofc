@@ -9,14 +9,38 @@
 
 {{- if $sidebar -}}
 <aside class="sidebar{{ if eq $sidebar "left" }} sidebar--left{{ end }}">
-{{- $root := . }}
-{{- with (default .Site.Params.sidebar.widgets .Params.widgets) -}}
-	{{- range $widget := . }}
-		{{- $p := printf "widgets/%s.html" $widget }}
-		{{- partial $p $root }}
+<!-- {{- $root := . }} -->
+<!-- {{- with (default .Site.Params.sidebar.widgets .Params.widgets) -}} -->
+<!-- 	{{- range $widget := . }} -->
+<!-- 		{{- $p := printf "widgets/%s.html" $widget }} -->
+<!-- 		{{- partial $p $root }} -->
+<!-- 	{{- end }} -->
+<!-- {{- else }} -->
+<!-- 	<p class="sidebar__warning"><strong>{{ T "sidebar_warning" }}:</strong><br>{{ T "sidebar_recommendation" }}</p> -->
+<!-- {{- end }} -->
+<main class="main list" role="main">
+	{{- with .Content }}
+	<div class="content main__content clearfix">
+		{{ . }}
+	</div>
 	{{- end }}
-{{- else }}
-	<p class="sidebar__warning"><strong>{{ T "sidebar_warning" }}:</strong><br>{{ T "sidebar_recommendation" }}</p>
-{{- end }}
+	{{- if .Site.Params.indexPager -}}
+		{{ $paginator := .Paginate (where .Site.RegularPages "Type" "in" .Site.Params.mainSections) }}
+		{{- range $paginator.Pages }}
+			{{- .Render "summary" }}
+		{{- end }}
+		{{- if and (eq $paginator.TotalNumberOfElements 0) (not $.Content) }}
+			<div class="warning">
+				{{ partial "svg/files.svg" (dict "class" "warning__icon") }}
+				<h3 class="warning__headline">{{ T "noposts_warning_title" | safeHTML }}</h3>
+				<div class="warning__text">
+					<p class="warning__description">{{ T "noposts_warning_description" | safeHTML }}</p>
+					<p class="warning__tip">{{ T "noposts_warning_tip" | safeHTML }}</p>
+				</div>
+			</div>
+		{{- end }}
+		{{ partial "pagination.html" . }}
+	{{- end }}
+</main>
 </aside>
 {{- end }}
